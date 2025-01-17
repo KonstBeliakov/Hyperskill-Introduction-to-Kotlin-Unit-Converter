@@ -1,34 +1,63 @@
 package converter
 
+class Unit(val name: String, val nameMany: String, val value: Double, val type: String)
+
+fun format(unit:Unit, number: Double): String{
+    return "$number ${if (number == 1.0) unit.name else unit.nameMany}"
+}
 
 fun main() {
-    val units: Map<Array<String>, Double> = mapOf(
-        arrayOf("m", "meter", "meters") to 1.0,
-        arrayOf("km", "kilometer", "kilometers") to 1000.0,
-        arrayOf("cm", "centimeter", "centimeters") to 0.01,
-        arrayOf("mm", "millimeter", "millimeters") to 0.001,
-        arrayOf("mi", "mile", "miles") to 1609.35,
-        arrayOf("yd", "yard", "yards") to 0.9144,
-        arrayOf("ft", "foot", "feet") to 0.3048,
-        arrayOf("in", "inch", "inches") to 0.0254
+    val m = Unit("meter", "meters", 1.0, "length")
+    val km = Unit("kilometer", "kilometers", 1000.0, "length")
+    val cm = Unit("centimeter", "centimeters", 0.01, "length")
+    val mm = Unit("milimeter", "milimeters", 0.001, "length")
+    val mi = Unit("mile", "miles", 1609.35, "length")
+    val yd = Unit("yard", "yards", 0.9144, "length")
+    val ft = Unit("foot", "feet", 0.3048, "length")
+    val inch = Unit("inch", "inches", 0.0254, "length")
+
+    val g = Unit("gram", "grams", 1.0, "mass")
+    val kg = Unit("kilogram", "kilograms", 1000.0, "mass")
+    val mg = Unit("milligram", "milligrams", 0.001, "mass")
+    val lb = Unit("pound", "pounds", 453.592, "mass")
+    val oz = Unit("ounce", "ounces", 28.3495, "mass")
+
+    val undefinedUnit = Unit("???", "???", 0.0, "???")
+
+    val units: Map<String, Unit> = mapOf(
+        "m" to m, "meter" to m, "meters" to m,
+        "km" to km, "kilometer" to km, "kilometers" to km,
+        "cm" to cm, "centimeter" to cm, "centimeters" to cm,
+        "mm" to mm, "millimeter" to mm, "millimeters" to mm,
+        "mi" to mi, "mile" to mi, "miles" to mi,
+        "yd" to yd, "yard" to yd, "yards" to yd,
+        "ft" to ft, "foot" to ft, "feet" to ft,
+        "in" to inch, "inch" to inch, "inches" to inch,
+
+        "g" to g, "gram" to g, "grams" to g,
+        "kg" to kg, "kilogram" to kg, "kilograms" to kg,
+        "mg" to mg, "milligram" to mg, "millirams" to mg,
+        "lb" to lb, "pound" to lb, "pounds" to lb,
+        "oz" to oz, "ounce" to oz, "ounces" to oz
     )
 
-    print("Enter a number and a measure: ")
-    val line = readln()
-    val number = line.split(" ")[0].toDouble()
-    val entered_unit = line.split(" ")[1].lowercase()
+    while(true) {
+        print("Enter what you want to convert (or exit): ")
+        val line = readln()
 
-    var unit_found = false
+        if (line == "exit") break
 
-    for((unitArray, value) in units) {
-        if (unitArray.contains(entered_unit.lowercase())) {
-            println("""$number ${if (number == 1.0) unitArray[1] else unitArray[2]} is ${number * value} meters""")
-            unit_found = true
-            break
+        val numberFrom = line.split(" ")[0].toDouble()
+        val unitFrom = line.split(" ")[1].lowercase()
+        val unitTo = line.split(" ")[3].lowercase()
+
+        if(units.containsKey(unitFrom) && units.containsKey(unitTo)){
+            if(units[unitFrom]?.type == units[unitTo]?.type){
+                val numberTo = units[unitFrom]!!.value / units[unitTo]!!.value
+                println("${format(units[unitFrom]!!, numberFrom)} is ${format(units[unitTo]!!, numberTo)}")
+            }else {
+                println("Conversion from ${units[unitFrom]?.nameMany} to ${units[unitTo]?.nameMany} is impossible")
+            }
         }
-    }
-
-    if(!unit_found){
-        println("Wrong input. Unknown unit $entered_unit")
     }
 }
