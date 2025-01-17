@@ -55,9 +55,11 @@ fun main() {
             if(units[unitFrom]?.type == units[unitTo]?.type){
                 val numberTo = units[unitFrom]!!.value / units[unitTo]!!.value
                 println("${format(units[unitFrom]!!, numberFrom)} is ${format(units[unitTo]!!, numberTo)}")
-            }else {
-                println("Conversion from ${units[unitFrom]?.nameMany} to ${units[unitTo]?.nameMany} is impossible")
             }
+        }else {
+            val unitName1 = units.getOrDefault(unitFrom, undefinedUnit).nameMany
+            val unitName2 = units.getOrDefault(unitTo, undefinedUnit).nameMany
+            println("Conversion from $unitName1 to $unitName2 is impossible")
         }
     }
 }
