@@ -16,7 +16,22 @@ enum class Unit(val nameOne: String, val nameMany: String, val value: Double, va
     LB("pound", "pounds", 453.592, "mass"),
     OZ("ounce", "ounces", 28.3495, "mass"),
 
+    C("degree Celsius", "degrees Celsius", 1.0, "temperature"),
+    F("degree Fahrenheit", "degrees Fahrenheit", 1.0, "temperature"),
+    K("kelvin", "kelvins", 1.0, "temperature"),
+
     UNDEFINED("???", "???", 0.0, "???")
+}
+
+fun convertTemperature(unitFrom: Unit, numberFrom: Double, unitTo: Unit): Double{
+    return when{
+        unitFrom == Unit.C && unitTo == Unit.F -> (numberFrom - 32) * (5/9)
+        unitFrom == Unit.F && unitTo == Unit.C -> numberFrom * (9/5) + 32
+        unitFrom == Unit.K && unitTo == Unit.C -> numberFrom - 273.15
+        unitFrom == Unit.C && unitTo == Unit.K -> numberFrom + 273.15
+        unitFrom == Unit.F && unitTo == Unit.K -> (numberFrom + 459.67) * (5/9)
+        else -> numberFrom * (9/5) - 459.67
+    }
 }
 
 fun format(unit:Unit, number: Double): String{
@@ -38,14 +53,26 @@ fun main() {
         "kg" to Unit.KG, "kilogram" to Unit.KG, "kilograms" to Unit.KG,
         "mg" to Unit.MG, "milligram" to Unit.MG, "millirams" to Unit.MG,
         "lb" to Unit.LB, "pound" to Unit.LB, "pounds" to Unit.LB,
-        "oz" to Unit.OZ, "ounce" to Unit.OZ, "ounces" to Unit.OZ
+        "oz" to Unit.OZ, "ounce" to Unit.OZ, "ounces" to Unit.OZ,
+
+        "k" to Unit.K, "kelvin" to Unit.K, "kelvins" to Unit.K,
+        "c" to Unit.C, "degree_Celsius" to Unit.C, "degrees_Celsius" to Unit.C,
+        "dc" to Unit.C, "celsius" to Unit.C,
+        "degree_Fahrenheit" to Unit.F, "degrees_Fahrenheit" to Unit.F, "fahrenheit" to Unit.F,
+        "df" to Unit.F, "f" to Unit.F
     )
 
     while(true) {
         print("Enter what you want to convert (or exit): ")
-        val line = readln()
+        var line = readln()
 
         if (line == "exit") break
+
+        line = line.replace("degree Celsius", "degree_Celsius")
+        line = line.replace("degrees Celsius", "degrees_Celsius")
+
+        line = line.replace("degree Fahrenheit", "degree_Fahrenheit")
+        line = line.replace("degrees Fahrenheit", "degrees_Fahrenheit")
 
         val numberFrom = line.split(" ")[0].toDouble()
         val unitFrom = line.split(" ")[1].lowercase()
@@ -53,8 +80,18 @@ fun main() {
 
         if(units.containsKey(unitFrom) && units.containsKey(unitTo)){
             if(units[unitFrom]?.type == units[unitTo]?.type){
-                val numberTo = units[unitFrom]!!.value / units[unitTo]!!.value
-                println("${format(units[unitFrom]!!, numberFrom)} is ${format(units[unitTo]!!, numberTo)}")
+                val type = units[unitFrom]?.type
+                if(type == "temperature"){
+                    val numberTo = convertTemperature(units[unitFrom]!!, numberFrom, units[unitTo]!!)
+                    println("${format(units[unitFrom]!!, numberFrom)} is ${format(units[unitTo]!!, numberTo)}")
+                }else {
+                    if(numberFrom < 0){
+                        if(type == "length") println("Length shouldn't be negative")
+                        else println("Weight shouldn't be negative")
+                    }
+                    val numberTo = units[unitFrom]!!.value / units[unitTo]!!.value
+                    println("${format(units[unitFrom]!!, numberFrom)} is ${format(units[unitTo]!!, numberTo)}")
+                }
             }
         }else {
             val unitName1 = units.getOrDefault(unitFrom, Unit.UNDEFINED).nameMany
